@@ -11,20 +11,70 @@ Add this to your /etc/rc.local:
 """
 
 import time
+import os
+import glob
 import RPi.GPIO as GPIO
 
-GPIO.setmode(GPIO.BOARD)
 
+GPIO.setmode(GPIO.BCM)
 
-RED_LED_PIN = 11   # GPIO 17
+# setup For buttons and leds
+RED_LED_PIN = 27
 GPIO.setup(RED_LED_PIN, GPIO.OUT)
-GREEN_LED_PIN = 12  # GPIO 18
+GREEN_LED_PIN = 18
 GPIO.setup(GREEN_LED_PIN, GPIO.OUT)
-YELLOW_LED_PIN = 13  # GPIO 21
+YELLOW_LED_PIN = 17
 GPIO.setup(YELLOW_LED_PIN, GPIO.OUT)
-#BUTTON_PIN = 6  # GND on pin 6
-#GPIO.setup(BUTTON_PIN, GPIO.IN)
+BUTTON_PIN = 24  # GND on pin 6
+GPIO.setup(BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
+
+# Setup for reading temperature
+os.system('/sbin/modprobe w1-gpio')
+os.system('/sbin/modprobe w1-therm')
+base_dir = '/sys/bus/w1/devices/'
+device_folder = glob.glob(base_dir + '10*')[0]
+device_file = device_folder + '/w1_slave'
+
+
+def read_temp_raw():
+    f = open(device_file, 'r')
+    lines = f.readlines()
+    f.close()
+    return lines
+
+
+def read_temp():
+    lines = read_temp_raw()
+    while lines[0].strip()[-3:] != 'YES':
+        time.sleep(0.2)
+        lines = read_temp_raw()
+    equals_pos = lines[1].find('t=')
+    if equals_pos != -1:
+        temp_string = lines[1][equals_pos+2:]
+        temp_c = float(temp_string) / 1000.0
+        #temp_f = temp_c * 9.0 / 5.0 + 32.0
+        return temp_c  #, temp_f
+
+
+def print_message(text):
+    """Print a number in big letters using figlet.
+
+    You will only see this message if running interactively as it
+    prints to stdout.
+
+    ..note:: sudo apt-get figlet
+
+    :param text: Text or number to print.
+
+    """
+    print '\n\n'
+    command = 'figlet %s' % text
+    import subprocess
+    process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+    output = process.communicate()[0]
+    print output
+    print '\n\n'
 
 def wait(period):
     """Wait for a while.
@@ -58,7 +108,7 @@ def halt():
     ..note:: This script must have been run by root for this function to work.
 
     """
-    print 'Shutting down'
+    print_message('Shutting down')
     command = '/usr/bin/sudo /sbin/shutdown now'
     import subprocess
     process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
@@ -80,6 +130,7 @@ def flash_led(pin, count=2, duration=500):
         wait(duration)
 
 
+# PiFace event handler - not used ATM
 def switch_pressed(event):
     """When user presses wait a second then let the motor start.
 
@@ -104,6 +155,7 @@ def switch_pressed(event):
         GPIO.output(GREEN_LED_PIN, GPIO.HIGH)
 
 
+# PiFace event handler - not used ATM
 def switch_unpressed(event):
     """When user releases let the motor run for 25 ms then stop it."""
     wait(250)
@@ -113,9 +165,22 @@ def switch_unpressed(event):
     GPIO.output(GREEN_LED_PIN, GPIO.HIGH)
 
 
+def show_message(channel):
+    print_message('Button on IO %s pressed!' % channel)
+    halt()
+
+
 if __name__ == '__main__':
     # Flash the leds to show we are online
+    time.sleep(3)
     flash_led(RED_LED_PIN, 5)
     flash_led(GREEN_LED_PIN, 5)
     flash_led(YELLOW_LED_PIN, 5)
+    GPIO.add_event_detect(
+        24, GPIO.FALLING, callback=show_message, bouncetime=300)
+
+    while True:
+        time.sleep(1)
+        print_message(read_temp())
+
     GPIO.cleanup()
