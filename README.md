@@ -17,7 +17,7 @@ You need to install these:
 ```bash
 sudo apt-get update
 sudo apt-get install figlet python-imaging-tk git nginx python-virtualenv \
-    python-dev
+    python-dev uwsgi uwsgi-plugin-python
 ```
 
 Then clone this repository to your pi e.g.:
