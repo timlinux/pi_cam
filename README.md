@@ -17,7 +17,7 @@ You need to install these:
 ```bash
 sudo apt-get update
 sudo apt-get install figlet python-imaging-tk git nginx python-virtualenv \
-    python-dev uwsgi uwsgi-plugin-python
+    python-dev uwsgi uwsgi-plugin-python supervisor
 ```
 
 Due to this issue: https://github.com/raspberrypi/linux/issues/435
@@ -33,6 +33,11 @@ spi-bcm2708
 snd-bcm2835
 ```
 
+Alternatively or additionally you should run
+
+```
+sudo apt-get install rpi-update
+```
 
 
 Then clone this repository to your pi e.g.:
@@ -50,7 +55,30 @@ cd ~/pi_cam
 virtualenv venv
 source venv/bin/activate
 pip install -r REQUIREMENTS.txt
+
+echo "daemon off;" | sudo tee -a /etc/nginx/nginx.conf
+
+cd /etc/nginx/sites-available
+sudo rm default
+sudo ln -s /home/pi/pi_cam/server-conf/nginx-site.conf default
+
+cd /etc/uwsgi/apps-available/
+sudo ln -s /home/pi/pi_cam/server-conf/django_project_uwsgi.ini default
+sudo ln -s ../apps-available/default .
+
+cd /etc/supervisor/conf.d/
+sudo ln -s /home/pi/pi_cam/server-conf/supervisor-nginx.conf .
+sudo ln -s /home/pi/pi_cam/server-conf/supervisor-uwsgi.conf .
+
 ```
+
+Edit ``/etc/default/uwsgi`` and set:
+
+```
+# Run automatically at system startup?
+RUN_AT_STARTUP=no
+```
+
 
 # Run manually
 

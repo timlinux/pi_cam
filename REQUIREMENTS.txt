@@ -1,2 +1,3 @@
 django
 uwsgi
+https://github.com/ashtons/picam/zipball/master#egg=picam

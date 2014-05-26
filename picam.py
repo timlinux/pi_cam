@@ -31,7 +31,9 @@ if not os.path.exists(filepath):
 
 filenamePrefix = 'linfiniti-office-'
 diskSpaceToReserve = 500 * 1024 * 1024 # Keep 500 mb free on disk
-cameraSettings = '' # -hf -vf
+# br = 30% brightness
+# rot - rotation
+cameraSettings = '-br 30 -rot 270' # -hf -vf
 
 # settings of the photos to save
 saveWidth   = 1296
