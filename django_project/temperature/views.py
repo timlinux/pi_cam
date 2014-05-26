@@ -1,12 +1,14 @@
 
 import datetime
-from django.http import HttpResponse
-
+from django.template.response import TemplateResponse
 from models import Temperature
 
 
 def index(request):
     temperature = Temperature()
     temperature.save()
-    html = "<html><body>It is now %s.</body></html>" % temperature.temperature
-    return HttpResponse(html)
+    return TemplateResponse(
+        request,
+        'index.html',
+        {'temperature': temperature},
+        content_type='text/html')
