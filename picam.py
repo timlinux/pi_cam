@@ -25,10 +25,13 @@ threshold = 10
 sensitivity = 20
 forceCapture = True
 forceCaptureTime = 60 * 60 # Once an hour
-filepath = "/home/pi/picam"
-filenamePrefix = "capture"
+filepath = '/home/pi/webcam-images'
+if not os.path.exists(filepath):
+    os.mkdir(filepath)
+
+filenamePrefix = 'linfiniti-office-'
 diskSpaceToReserve = 500 * 1024 * 1024 # Keep 500 mb free on disk
-cameraSettings = "-hf -vf"
+cameraSettings = '' # -hf -vf
 
 # settings of the photos to save
 saveWidth   = 1296

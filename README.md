@@ -20,6 +20,21 @@ sudo apt-get install figlet python-imaging-tk git nginx python-virtualenv \
     python-dev uwsgi uwsgi-plugin-python
 ```
 
+Due to this issue: https://github.com/raspberrypi/linux/issues/435
+
+You should set your /etc/modules to look like this:
+
+```
+w1-therm
+w1-gpio pullup=1
+i2c-dev
+i2c-bcm2708
+spi-bcm2708
+snd-bcm2835
+```
+
+
+
 Then clone this repository to your pi e.g.:
 
 ```bash
