@@ -59,7 +59,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': '/tmp/db.sqlite3',
+        'NAME': '/home/pi/pi_cam/db.sqlite3',
     }
 }
 
@@ -87,3 +87,6 @@ TEMPLATE_DIRS = (
     os.path.join(BASE_DIR, 'templates'),
     # here you can add another templates directory if you wish.
 )
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+MEDIA_URL = '/media/'
